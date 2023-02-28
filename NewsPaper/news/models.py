@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Sum
+from django.urls import reverse
 
 class Author(models.Model):
     author = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
@@ -18,15 +19,23 @@ class Author(models.Model):
         self.author_rating = pRat * 3 + cRat
         self.save()
 
-    def __str__(self):
-        return self.author.username
+    def __str__(self): #Метод для очеловечивания вывода из БД
+        return '{}'.format(self.author.username) #Форматирование строк - защита от SQL инъекций
+
+    class Meta:           #Класс для удобства админки
+        verbose_name = 'Автор'
+        verbose_name_plural = 'Авторы'
 
 
 class Category(models.Model):
     category_name = models.CharField(max_length=64, unique=True)
 
     def __str__(self):
-        return self.category_name
+        return '{}'.format(self.category_name)
+
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
 
 class Post(models.Model):
@@ -55,13 +64,22 @@ class Post(models.Model):
     def preview(self):
         return self.post_text[0:123] + '...'
 
+    def get_absolute_url(self):
+        return reverse('post_detail', args=[str(self.id)])
+
     def __str__(self):
-        return self.post_header
+        return '{}'.format(self.post_header)
+
+    class Meta:
+        verbose_name = 'Пост'
+        verbose_name_plural = 'Посты'
 
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return '{}'.format(self.post, self.category)
 
 class Comment(models.Model):
     comment_post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -77,3 +95,7 @@ class Comment(models.Model):
     def dislike(self):
         self.comm_rating -= 1
         self.save()
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
