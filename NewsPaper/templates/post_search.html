@@ -21,10 +21,12 @@
                 </thead>
                 {% for posts in filter.qs %}
                     <tr>
-                        <td>{{ posts.post_header|title|censor }}</td>
+                        <td>
+                            <a href="{% url 'post_detail' posts.id %}">{{ posts.post_header|title|censor }}</a>
+                        </td>
                         <td>{{ posts.post_create_time|date:'M d Y'}}</td>
                         <td>{{ posts.post_text|truncatechars:20|censor }}</td>
-                        <td>{{ categories.post_category.get.category_name }}</td>
+                        <td>{{ posts.type_choice }}</td>
                     </tr>
                 {% endfor %}
             </table>

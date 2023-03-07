@@ -6,8 +6,24 @@
 {% endblock title %}
 
 {% block content %}
-<h1>{{ post.post_header|censor }}</h1>
+<h1>{{ post.post_header|censor }} ({{ post.type_choice }})</h1>
 <h2>{{ post.post_create_time|date:'M d Y' }}</h2>
 <hr>
 <h1>{{post.post_text|censor}}</h1>
+<hr>
+{% if post.type_choice == 'NE' %}
+    {% if perms.simpleapp.change_product %}
+    <a href="{% url 'news_edit' pk=post.id %}">Изменить</a>
+    {% endif %}
+    {% if perms.simpleapp.delete_product %}
+    <a href="{% url 'news_delete' post.id %}">Удалить</a>
+    {% endif %}
+{% elif post.type_choice == 'AR' %}
+    {% if perms.simpleapp.change_product %}
+    <a href="{% url 'articles_edit' pk=post.id %}">Изменить</a>
+    {% endif %}
+    {% if perms.simpleapp.delete_product %}
+    <a href="{% url 'articles_delete' post.id %}">Удалить</a>
+    {% endif %}
+{% endif %}
 {% endblock content %}
