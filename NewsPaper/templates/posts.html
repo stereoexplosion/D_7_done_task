@@ -1,5 +1,6 @@
 {% extends 'flatpages/default.html' %}
 {% load custom_filters %}
+{% load custom_tags %}
 
 {% block title %}
 Все посты
@@ -8,22 +9,24 @@
 {% block content %}
    <h1>Все новости и статьи</h1>
    <hr>
-   <h2>Всего постов: {{posts|length}}</h2>
+   <h2>Всего постов: {{posts.filter.all|length}}</h2>
    <hr>
-   {% if perms.simpleapp.add_post %}
+   {% if perms.news.add_post %}
       <a href="{% url 'news_create' %}">Добавить новость</a> <a href="{% url 'article_create' %}">Добавить статью</a>
    {% endif %}
    {% if posts %}
        <table>
-           <tr>
-               <td>Заголовок</td>
-               <td>Дата публикации</td>
-               <td>Предварительный просмотр</td>
-               <td>Автор</td>
-               <td>Категория</td>
-               <td>Рейтинг</td>
-               <td>Тип поста</td>
-           </tr>
+           <thead>
+               <tr>
+                   <th>Заголовок</th>
+                   <th>Дата публикации</th>
+                   <th>Предварительный просмотр</th>
+                   <th>Автор</th>
+                   <th>Категория</th>
+                   <th>Рейтинг</th>
+                   <th>Тип поста</th>
+               </tr>
+           </thead>
            {% for post in posts %}
            <tr>
                <td>

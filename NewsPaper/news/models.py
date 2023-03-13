@@ -3,6 +3,8 @@ from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
 
+
+
 class Author(models.Model):
     author = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
     author_rating = models.IntegerField(default=0)
@@ -29,6 +31,7 @@ class Author(models.Model):
 
 class Category(models.Model):
     category_name = models.CharField(max_length=64, unique=True)
+    subscribers = models.ManyToManyField
 
     def __str__(self):
         return '{}'.format(self.category_name)
@@ -62,7 +65,7 @@ class Post(models.Model):
         self.save()
 
     def preview(self):
-        return self.post_text[0:123] + '...'
+        return self.post_text[0:40] + '...'
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[str(self.id)])
@@ -99,3 +102,15 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
+
+class Subscription(models.Model):
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+    )
+    category = models.ForeignKey(
+        to='Category',
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+    )

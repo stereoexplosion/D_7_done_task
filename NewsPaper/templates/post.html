@@ -12,17 +12,17 @@
 <h1>{{post.post_text|censor}}</h1>
 <hr>
 {% if post.type_choice == 'NE' %}
-    {% if perms.simpleapp.change_product %}
+    {% if perms.news.change_post %}
     <a href="{% url 'news_edit' pk=post.id %}">Изменить</a>
     {% endif %}
-    {% if perms.simpleapp.delete_product %}
+    {% if perms.news.delete_post %}
     <a href="{% url 'news_delete' post.id %}">Удалить</a>
     {% endif %}
 {% elif post.type_choice == 'AR' %}
-    {% if perms.simpleapp.change_product %}
+    {% if perms.news.change_post %}
     <a href="{% url 'articles_edit' pk=post.id %}">Изменить</a>
     {% endif %}
-    {% if perms.simpleapp.delete_product %}
+    {% if perms.news.delete_post %}
     <a href="{% url 'articles_delete' post.id %}">Удалить</a>
     {% endif %}
 {% endif %}
