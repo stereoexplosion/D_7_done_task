@@ -1,2 +1,5 @@
+touch .gitignore
 /venv/
 /.idea/
+git add .gitignore
+git commit -m 'update gitignore'
