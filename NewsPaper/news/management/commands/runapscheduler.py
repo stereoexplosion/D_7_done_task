@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 def my_job():
     posts = Post.objects.all()
-    posts_apscheduler = posts.filter(post_create_time__gte=datetime.now() - timedelta(minutes=2880))
+    posts_apscheduler = posts.filter(post_create_time__gte=datetime.now() - timedelta(minutes=60*24*7))
     users = Subscription.objects.all().values_list('user_id', flat=True).distinct()
     for user in users:
         category_sub = []
