@@ -13,19 +13,17 @@
         </form>
             <table>
                 <thead>
-                    <th>Заголовок публикации</th>
-                    <th>Дата публикации</th>
-                    <th>Предварительный просмотр</th>
-                    <th>Категории</th>
+                   <th>Заголовок</th>
+                   <th>Дата публикации</th>
+                   <th>Предварительный просмотр</th>
                 </thead>
                 {% for posts in filter.qs %}
                     <tr>
                         <td>
                             <a href="{% url 'post_detail' posts.id %}">{{ posts.post_header|title|censor }}</a>
                         </td>
-                        <td>{{ posts.post_create_time|date:'M d Y'}}</td>
+                        <td>{{ posts.post_create_time|date:'M d Y' }}</td>
                         <td>{{ posts.post_text|truncatechars:20|censor }}</td>
-                        <td>{{ posts.type_choice }}</td>
                     </tr>
                 {% endfor %}
             </table>

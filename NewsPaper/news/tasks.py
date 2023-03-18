@@ -1,23 +1,30 @@
-import logging
-
-from apscheduler.schedulers.blocking import BlockingScheduler
-from apscheduler.triggers.cron import CronTrigger
-from django.conf import settings
+from celery import shared_task
 from django.core.mail import EmailMultiAlternatives
-from django.core.management.base import BaseCommand
-
-from django_apscheduler import util
-from django_apscheduler.jobstores import DjangoJobStore
-from django_apscheduler.models import DjangoJobExecution
-
-from ...models import Post, Subscription
+from .models import Post, Subscription
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
 
-logger = logging.getLogger(__name__)
+@shared_task
+def new_post_notify(preview, pk, post_header, user_emails, category):
+    subject = f'Новая публикация в вашей любимой категории {category}'
+    text_content = (
+        f'Заголовок: {post_header}\n'
+        f'Превью: {preview}\n\n'
+        f'Ссылка на публикацию: http://127.0.0.1:8000/posts/{pk}'
+    )
+    html_content = (
+        f'Заголовок: {post_header}<br>'
+        f'Превью: {preview}<br><br>'
+        f'<a href="http://127.0.0.1:8000/posts/{pk}">'
+        f'Ссылка на публикацию</a>'
+    )
+    for email in user_emails:
+        msg = EmailMultiAlternatives(subject, text_content, None, [email])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
 
-
-def my_job():
+@shared_task
+def weekly_subscribers_email():
     posts = Post.objects.all()
     posts_apscheduler = posts.filter(post_create_time__gte=datetime.now() - timedelta(minutes=60*24*7))
     users = Subscription.objects.all().values_list('user_id', flat=True).distinct()
@@ -25,7 +32,6 @@ def my_job():
         category_sub = []
         posts_for_send = []
         user_email = User.objects.filter(id=user).values_list('email', flat=True)
-        print(user_email)
         for category in Subscription.objects.filter(user=user).values_list('category', flat=True):
             category_sub.append(category)
         for post in posts_apscheduler:
@@ -53,43 +59,3 @@ def my_job():
             msg = EmailMultiAlternatives(subject, text_content, None, [email])
             msg.attach_alternative(html_content, "text/html")
             msg.send()
-
-@util.close_old_connections
-def delete_old_job_executions(max_age=604_800):
-    DjangoJobExecution.objects.delete_old_job_executions(max_age)
-
-
-class Command(BaseCommand):
-    help = "Runs APScheduler."
-
-    def handle(self, *args, **options):
-        scheduler = BlockingScheduler(timezone=settings.TIME_ZONE)
-        scheduler.add_jobstore(DjangoJobStore(), "default")
-
-        scheduler.add_job(
-            my_job,
-            trigger=CronTrigger(minute="00", hour="18", day_of_week='fri'),
-            id="my_job",  # The `id` assigned to each job MUST be unique
-            max_instances=1,
-            replace_existing=True,
-        )
-        logger.info("Added job 'my_job'.")
-
-        scheduler.add_job(
-            delete_old_job_executions,
-            trigger=CronTrigger(
-                day_of_week="mon", hour="00", minute="00"
-            ),
-            id="delete_old_job_executions",
-            max_instances=1,
-            replace_existing=True,
-        )
-        logger.info("Added weekly job: 'delete_old_job_executions'.")
-
-        try:
-            logger.info("Starting scheduler...")
-            scheduler.start()
-        except KeyboardInterrupt:
-            logger.info("Stopping scheduler...")
-            scheduler.shutdown()
-            logger.info("Scheduler shut down successfully!")

@@ -183,3 +183,10 @@ MANAGERS = (
 ADMINS = (
     ('Vladislav', 'vladislavis92@yandex.ru'),
 )
+
+CELERY_BROKER_URL = 'redis://default:8MVP602Fb6mYKhmCAjpEwo2jUecwna6k@redis-18100.c135.eu-central-1-1.ec2.cloud.redislabs.com:18100'
+CELERY_RESULTS_BACKEND = 'redis://default:8MVP602Fb6mYKhmCAjpEwo2jUecwna6k@redis-18100.c135.eu-central-1-1.ec2.cloud.redislabs.com:18100'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Moscow'
